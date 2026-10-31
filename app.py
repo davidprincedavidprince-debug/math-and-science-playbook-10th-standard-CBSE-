@@ -128,12 +128,12 @@ api_key = st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=api_key)
 
 text_model = genai.GenerativeModel(
-    'gemini-1.5-flash',
+    'gemini-2.5-flash',
     system_instruction="You are an expert Indian CBSE high school teacher. Use standard academic terminology strictly aligned with the NCERT 10th-standard syllabus. Format any mathematical equations using standard LaTeX syntax ($ or $$) so they render properly in Markdown."
 )
 
 json_model = genai.GenerativeModel(
-    'gemini-1.5-flash', 
+    'gemini-2.5-flash', 
     generation_config={"response_mime_type": "application/json"},
     system_instruction="You are an expert Indian CBSE high school examiner."
 )
