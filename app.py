@@ -122,18 +122,14 @@ st.sidebar.markdown("---")
 chapter = st.sidebar.radio("📖 Select Chapter", ["Home", "Science Tutor", "Maths Tutor", "Dynamic Quiz"])
 
 # ==========================================
-# 5. API Configuration
+# 5. API Configuration (Strict Secrets)
 # ==========================================
-try:
-    api_key = st.secrets["GEMINI_API_KEY"]
-except Exception:
-    api_key = "YOUR_API_KEY_HERE" # Replace for local Termux testing
-
+api_key = st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=api_key)
 
 text_model = genai.GenerativeModel(
     'gemini-1.5-flash',
-    system_instruction="You are an expert Indian CBSE high school teacher. Use standard academic terminology strictly aligned with the NCERT 10th-standard syllabus."
+    system_instruction="You are an expert Indian CBSE high school teacher. Use standard academic terminology strictly aligned with the NCERT 10th-standard syllabus. Format any mathematical equations using standard LaTeX syntax ($ or $$) so they render properly in Markdown."
 )
 
 json_model = genai.GenerativeModel(
@@ -184,11 +180,12 @@ elif chapter == "Maths Tutor":
             Act as a CBSE 10th Standard Maths Teacher.
             The student needs help with the following problem/concept: '{problem}' from the chapter '{selected_maths_chap}'.
             Provide a step-by-step breakdown of how to solve it. Do not just give the final answer; show the working steps clearly.
-            CRITICAL INSTRUCTION: Output your entire response, including the mathematical steps and text explanations, fluently in {target_lang}.
+            CRITICAL INSTRUCTION: Output your entire response, including the mathematical steps and text explanations, fluently in {target_lang}. Make sure to use standard LaTeX ($...$ or $$...$$) for all math formulas and equations.
             """
             with st.spinner(t["loading"]):
                 response = text_model.generate_content(prompt)
-                st.success(response.text)
+                # Using markdown specifically to render the LaTeX equations returned by Gemini
+                st.markdown(response.text)
         else:
             st.warning(t["warn_empty"])
 
@@ -205,6 +202,7 @@ elif chapter == "Dynamic Quiz":
         prompt = f"""
         Create a 3-question multiple-choice quiz for a CBSE 10th-grade student on the {subject} chapter: '{selected_quiz_chap}'.
         CRITICAL: The questions, options, and explanations MUST be written fluently in {target_lang}.
+        If there are any math equations, format them using LaTeX ($...$).
         Return ONLY a JSON array with this exact structure:
         [{{ "question": "...", "options": ["...", "...", "...", "..."], "answer": "...", "explanation": "..." }}]
         """
